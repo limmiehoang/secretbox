@@ -3,6 +3,7 @@ import Router from "vue-router";
 import Home from "./views/Home.vue";
 import Callback from "./components/Callback";
 import Profile from "./views/Profile.vue";
+import ExternalApiView from "./views/ExternalApi.vue";
 import auth from "./auth/authService";
 
 Vue.use(Router);
@@ -25,6 +26,11 @@ const router = new Router({
       path: "/profile",
       name: "profile",
       component: Profile
+    },
+    {
+      path: "/external-api",
+      name: "external-api",
+      component: ExternalApiView
     }
   ]
 });
