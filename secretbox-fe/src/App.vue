@@ -1,26 +1,7 @@
 <template>
   <div id="app">
-    <nav>
-      <div>
-        <a href="#">Auth0 - Vue</a>
-      </div>
-      <ul>
-        <li>
-          <router-link to="/">Home</router-link>
-        </li>
-        <li v-if="!isAuthenticated">
-          <a href="#" @click.prevent="login">Login</a>
-        </li>
-        <li v-if="isAuthenticated">
-          <router-link to="/profile">Profile</router-link>
-        </li>
-        <li v-if="isAuthenticated">
-          <a href="#" @click.prevent="logout">Log out</a>
-        </li>
-      </ul>
-    </nav>
     <div>
-      <router-view></router-view>
+      <router-view :isAuthenticated="isAuthenticated"></router-view>
     </div>
   </div>
 </template>
@@ -41,12 +22,6 @@ export default {
     }
   },
   methods: {
-    login() {
-      this.$auth.login();
-    },
-    logout() {
-      this.$auth.logOut();
-    },
     handleLoginEvent(data) {
       this.isAuthenticated = data.loggedIn;
       this.profile = data.profile;
@@ -57,6 +32,10 @@ export default {
 
 
 <style>
+ul {
+  list-style: none;
+}
+
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -64,6 +43,7 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+
 #nav {
   padding: 30px;
 }
