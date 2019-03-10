@@ -17,6 +17,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/files/{id?}', 'FileController@index');
+Route::get('/files/{group_id?}/{id?}', 'FileController@index');
 
 Route::post('files/add', 'FileController@store');

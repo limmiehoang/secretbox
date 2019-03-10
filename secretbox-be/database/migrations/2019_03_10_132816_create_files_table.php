@@ -19,9 +19,11 @@ class CreateFilesTable extends Migration
             $table->string('type');
             $table->string('extension');
             $table->string('user_id');
-            $table->integer('group_id');
+            $table->bigInteger('group_id')->unsigned();
             $table->string('url');
             $table->timestamps();
+
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     }
 

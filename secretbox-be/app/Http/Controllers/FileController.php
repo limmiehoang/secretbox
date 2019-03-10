@@ -14,30 +14,28 @@ class FileController extends Controller
     private $document_ext = ['doc', 'docx', 'pdf', 'odt'];
 
 
-    public function index($id = null)
+    public function index($group_id = null, $id = null)
     {
         $model = new File();
 
         if (!is_null($id)) {
-            $response = $model::findOrFail($id);
-        } else {
-            $records_per_page = 10;
+            return response()->json($model::findOrFail($id));
+        }
 
+        $records_per_page = 10;
+
+        if (!is_null($group_id)) {
+            $files = $model::where('group_id', $group_id)
+                            ->orderBy('id', 'desc')
+                            ->paginate($records_per_page);
+        }
+        else {
             $files = $model::orderBy('id', 'desc')
                             ->paginate($records_per_page);
+        }
             $response = [
-                'pagination' => [
-                    'total' => $files->total(),
-                    'per_page' => $files->perPage(),
-                    'current_page' => $files->currentPage(),
-                    'last_page' => $files->lastPage(),
-                    'from' => $files->firstItem(),
-                    'to' => $files->lastItem()
-                ],
                 'data' => $files
             ];
-
-        }
 
         return response()->json($response);
     }
