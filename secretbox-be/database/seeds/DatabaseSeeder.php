@@ -9,8 +9,17 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
-    {
-        // $this->call(UsersTableSeeder::class);
+    public function run() {
+        $this->call('GroupTableSeeder');
+
+        $this->command->info('Group table seeded!');
+    }
+}
+
+class GroupTableSeeder extends Seeder
+{
+    public function run() {
+        DB::table('groups')->delete();
+        \App\Group::create(array('id' => 1, 'name' => 'Fun Group'));
     }
 }
