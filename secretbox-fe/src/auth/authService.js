@@ -47,6 +47,7 @@ class AuthService extends EventEmitter {
     this.tokenExpiry = new Date(this.profile.exp * 1000);
 
     localStorage.setItem(localStorageKey, 'true');
+    localStorage.setItem("accessToken", this.idToken);
 
     this.emit(loginEvent, {
       loggedIn: true,
@@ -74,6 +75,7 @@ class AuthService extends EventEmitter {
 
   logOut() {
     localStorage.removeItem(localStorageKey);
+    localStorage.removeItem("accessToken");
 
     this.idToken = null;
     this.tokenExpiry = null;
