@@ -82,6 +82,7 @@
               </tr>
             </tbody>
           </table>
+          <p v-show="msg">{{ msg }}</p>
         </div>
         <div class="info-banner">
           <button class="btn btn-sm">Upload</button>
@@ -97,17 +98,33 @@ export default {
   data() {
     return {
       profile: this.$auth.profile,
-      files: null
+      files: null,
+      msg: null
     }
   },
-  created() {
-    this.$http.get('http://localhost:8000/api/files', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-      }        
-    }).then(response => {
-      this.files = response.body.data.data;
-    });
+  async created() {
+    this.msg = null;
+    const accessToken = await this.$auth.getAccessToken();
+
+    try {
+      // this.$http.get('http://localhost:8000/api/files', {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`
+      //   }        
+      // }).then(response => {
+      //   this.files = response.body.data.data;
+      // });
+
+      const { data } = await this.$http.get('http://localhost:8000/api/files', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }        
+      });
+      
+      this.files = data.files.data;
+    } catch (e) {
+      this.msg = `Error: the server responded with '${e}'`;
+    }
   },
   methods: {
     handleLoginEvent(data) {
