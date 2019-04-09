@@ -48,7 +48,7 @@ router.beforeEach((to, from, next) => {
 
   // Specify the current path as the customState parameter, meaning it
   // will be returned to the application after auth
-  auth.login({ target: to.path });
+  auth.lockLogin({ target: to.path });
 });
 
 export default router;

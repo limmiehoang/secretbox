@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     login() {
-      this.$auth.login();
+      this.$auth.lockLogin();
     },
     logout() {
       this.$auth.logOut();

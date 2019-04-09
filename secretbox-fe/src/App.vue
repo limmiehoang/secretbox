@@ -23,8 +23,12 @@ export default {
   },
   methods: {
     handleLoginEvent(data) {
+      console.log("handleLoginEvent in App");
       this.isAuthenticated = data.loggedIn;
       this.profile = data.profile;
+      if (data.state.target) {
+        this.$router.push(data.state.target || "/");
+      }
     }
   }
 };

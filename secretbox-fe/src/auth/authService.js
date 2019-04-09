@@ -1,4 +1,5 @@
 import auth0 from 'auth0-js';
+import Auth0Lock from 'auth0-lock';
 import EventEmitter from 'events';
 import authConfig from '../../auth_config.json';
 
@@ -10,6 +11,26 @@ const webAuth = new auth0.WebAuth({
   responseType: 'token id_token',
   scope: 'openid profile email'
 });
+
+var options = {
+  auth: {
+    audience: authConfig.audience,
+    params: {
+      scope: "openid profile email"
+    },
+    autoParseHash: false,
+    redirectUrl: `${window.location.origin}/callback`,
+    responseType: "token id_token",
+    sso: true
+  },
+  allowedConnections: ['Username-Password-Authentication']
+};
+
+const lock = new Auth0Lock(
+  authConfig.clientId,
+  authConfig.domain,
+  options
+);
 
 const localStorageKey = 'loggedIn';
 const loginEvent = 'loginEvent';
@@ -28,12 +49,41 @@ class AuthService extends EventEmitter {
       appState: customState
     });
   }
+  
+  lockLogin(customState) {
+    console.log("lockLogin");
+    lock.checkSession({}, (err, authResult) => {
+      console.log("checked session");
+      if (err) {
+        lock.show({
+          auth: {
+            params: {
+              appState: customState
+            }
+          }
+        });
+        return;
+      }
+      authResult.appState = customState;
+      console.log("call lockLogin from lockLogin");
+      this.localLogin(authResult);
+    });
+    
+    lock.on("authenticated", authResult => {
+      lock.hide();
+      console.log("call lockLogin from on authenticated");
+      this.localLogin(authResult);
+    });
+  }
 
   // Handles the callback request from Auth0
   handleAuthentication() {
+    console.log("handleAuthentication")
     return new Promise((resolve, reject) => {
-      webAuth.parseHash((err, authResult) => {
+      console.log(window.location.hash);
+      lock.resumeAuth(window.location.hash, (err, authResult) => {
         if (err) {
+          alert("Could not parse hash");
           reject(err);
         } else {
           this.localLogin(authResult);
@@ -44,6 +94,7 @@ class AuthService extends EventEmitter {
   }
 
   localLogin(authResult) {
+    console.log("localLogin");
     this.idToken = authResult.idToken;
     this.profile = authResult.idTokenPayload;
 
@@ -55,6 +106,8 @@ class AuthService extends EventEmitter {
 
     localStorage.setItem(localStorageKey, 'true');
     localStorage.setItem("accessToken", this.accessToken);
+
+    console.log(authResult);
 
     this.emit(loginEvent, {
       loggedIn: true,
@@ -69,7 +122,7 @@ class AuthService extends EventEmitter {
         return reject("Not logged in");
       }
 
-      webAuth.checkSession({}, (err, authResult) => {
+      lock.checkSession({}, (err, authResult) => {
         if (err) {
           reject(err);
         } else {
@@ -88,7 +141,7 @@ class AuthService extends EventEmitter {
     this.tokenExpiry = null;
     this.profile = null;
 
-    webAuth.logout({
+    lock.logout({
       returnTo: window.location.origin
     });
 
@@ -98,7 +151,7 @@ class AuthService extends EventEmitter {
   isAuthenticated() {
     return (
       Date.now() < this.tokenExpiry &&
-      localStorage.getItem(localStorageKey) === 'true'
+      localStorage.getItem(localStorageKey) == 'true'
     );
   }
 
