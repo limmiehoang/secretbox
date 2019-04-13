@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace SecretBox\Http\Controllers;
 
-use App\File;
+use SecretBox\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

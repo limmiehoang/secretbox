@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace SecretBox\Http\Middleware;
 
 use Auth0\Login\Contract\Auth0UserRepository;
 use Auth0\SDK\Exception\CoreException;
