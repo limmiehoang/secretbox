@@ -34,7 +34,7 @@ class FileController extends Controller
                             ->paginate($records_per_page);
         }
             $response = [
-                'data' => $files
+                'files' => $files
             ];
 
         return response()->json($response);
