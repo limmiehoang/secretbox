@@ -17,6 +17,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/files/{group_id?}/{id?}', 'FileController@index')->middleware('check.scope:read:files');
+Route::get('/files/{group_id?}/{id?}', 'FileController@index')->middleware('jwt');
 
 Route::post('files/add', 'FileController@store');
+
+Route::get('/external', function (Request $request) {
+    return response()->json(["msg" => "Your Access Token was successfully validated!"]);
+})->middleware('jwt');
