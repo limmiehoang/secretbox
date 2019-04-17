@@ -24,3 +24,7 @@ Route::post('files/add', 'FileController@store');
 Route::get('/external', function (Request $request) {
     return response()->json(["msg" => "Your Access Token was successfully validated!"]);
 })->middleware('jwt');
+
+Route::middleware('jwt')->group( function () {
+    Route::resource('groups', 'GroupController');
+});
