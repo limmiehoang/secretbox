@@ -2,7 +2,7 @@
 
 namespace SecretBox\Http\Middleware;
 
-use Auth0\Login\Contract\Auth0UserRepository;
+use SecretBox\Repositories\CustomUserRepository;
 use Auth0\SDK\Exception\CoreException;
 use Auth0\SDK\Exception\InvalidTokenException;
 use Closure;
@@ -14,9 +14,9 @@ class CheckJWT
     /**
      * CheckJWT constructor.
      *
-     * @param Auth0UserRepository $userRepository
+     * @param CustomUserRepository $userRepository
      */
-    public function __construct(Auth0UserRepository $userRepository)
+    public function __construct(CustomUserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }
