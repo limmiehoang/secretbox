@@ -14,16 +14,20 @@ class CreateFilesTable extends Migration
     public function up()
     {
         Schema::create('files', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->string('id',16)->index()->unique();
+            $table->primary('id');
             $table->string('name');
             $table->string('type');
             $table->string('extension');
-            $table->string('user_id');
-            $table->bigInteger('group_id')->unsigned();
+            $table->string('user_id')->index();
+            $table->string('group_id',16)->nullable()->index();
             $table->string('url');
             $table->timestamps();
 
-            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+            $table->foreign('user_id')->references('sub')->on('users')
+                ->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')
+                ->onDelete('SET NULL');
         });
     }
 
