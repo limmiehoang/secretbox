@@ -23,7 +23,19 @@ var options = {
     responseType: "token id_token",
     sso: true
   },
-  allowedConnections: ['Username-Password-Authentication']
+  allowedConnections: ['Username-Password-Authentication'],
+  allowAutocomplete: true,
+  allowShowPassword: true,
+  allowForgotPassword: false,
+  autoclose: true,
+  theme: {
+    logo: 'https://i.ibb.co/7rRHQWJ/logo.png',
+    primaryColor: '#e76123'
+  },
+  languageDictionary: {
+    title: "SecretBox"
+  },
+  avatar: null
 };
 
 const lock = new Auth0Lock(
@@ -51,10 +63,13 @@ class AuthService extends EventEmitter {
   }
   
   lockLogin(customState) {
-    console.log("lockLogin");
     lock.checkSession({}, (err, authResult) => {
-      console.log("checked session");
       if (err) {
+        if (!customState) {
+          customState = {
+            target: "/home"
+          }
+        }
         lock.show({
           auth: {
             params: {
@@ -65,22 +80,17 @@ class AuthService extends EventEmitter {
         return;
       }
       authResult.appState = customState;
-      console.log("call lockLogin from lockLogin");
       this.localLogin(authResult);
     });
     
     lock.on("authenticated", authResult => {
-      lock.hide();
-      console.log("call lockLogin from on authenticated");
       this.localLogin(authResult);
     });
   }
 
   // Handles the callback request from Auth0
   handleAuthentication() {
-    console.log("handleAuthentication")
     return new Promise((resolve, reject) => {
-      console.log(window.location.hash);
       lock.resumeAuth(window.location.hash, (err, authResult) => {
         if (err) {
           alert("Could not parse hash");
@@ -94,7 +104,6 @@ class AuthService extends EventEmitter {
   }
 
   localLogin(authResult) {
-    console.log("localLogin");
     this.idToken = authResult.idToken;
     this.profile = authResult.idTokenPayload;
 
@@ -106,8 +115,6 @@ class AuthService extends EventEmitter {
 
     localStorage.setItem(localStorageKey, 'true');
     localStorage.setItem("accessToken", this.accessToken);
-
-    console.log(authResult);
 
     this.emit(loginEvent, {
       loggedIn: true,
