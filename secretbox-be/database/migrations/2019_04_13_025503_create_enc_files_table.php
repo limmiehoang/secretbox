@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGroupsTable extends Migration
+class CreateEncFilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,15 @@ class CreateGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('enc_files', function (Blueprint $table) {
             $table->string('id', 16)->index()->unique();
             $table->primary('id');
-            $table->string('name')->nullable()->default(null)->unique();
-            $table->timestamps();
+            $table->string('group_id', 16)->index();
+            $table->string('prefix');
+            $table->binary('enc_metadata');
+
+            $table->foreign('group_id')->references('id')->on('groups')
+                ->onDelete('cascade');
         });
     }
 
@@ -28,6 +32,6 @@ class CreateGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('enc_files');
     }
 }
