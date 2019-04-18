@@ -11,7 +11,7 @@ class GroupController extends APIController
     public function index()
     {
         $user = User::find(\Auth::user()->sub);
-        $groups = $user->groups->sortByDesc('updated_at');
+        $groups = $user->groups->makeHidden('pivot')->sortByDesc('updated_at')->values()->all();
         return $this->sendResponse($groups, 'Groups retrieved successfully.');
     }
 
