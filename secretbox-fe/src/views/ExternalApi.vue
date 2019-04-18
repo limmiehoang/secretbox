@@ -30,7 +30,7 @@ export default {
       const accessToken = await this.$auth.getAccessToken();
 
       try {
-        const { data } = await this.$http.get('http://localhost:8000/api/external', {
+        const { data } = await this.$http.get('api/external', {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }

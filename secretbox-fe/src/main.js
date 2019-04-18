@@ -16,6 +16,7 @@ Vue.use(AuthPlugin);
 Vue.use(BootstrapVue);
 
 Vue.config.productionTip = false;
+Vue.http.options.root = 'http://localhost:8000';
 
 new Vue({
   router,

@@ -21,8 +21,8 @@
             <a href="">My groups</a>
             <div class="group-list">
               <ul aria-label="Group list">
-                <li class="group-item">
-                  <a href="">Group 1</a>
+                <li class="group-item" v-for="group in groups" :key="group.id">
+                  <a href="">{{ group.name }}</a>
                 </li>
                 <li class="group-item">
                   <a href="">Group 2</a>
@@ -30,7 +30,6 @@
               </ul>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
@@ -93,38 +92,44 @@
 </template>
 
 <script>
+import Vue from "vue";
+
 export default {
   name: "home",
   data() {
     return {
       profile: this.$auth.profile,
       files: null,
-      msg: null
+      messages: [],
+      groups: null
     }
   },
   async created() {
     this.msg = null;
     const accessToken = await this.$auth.getAccessToken();
+    Vue.http.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
-    try {
-      // this.$http.get('http://localhost:8000/api/files', {
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`
-      //   }        
-      // }).then(response => {
-      //   this.files = response.body.data.data;
-      // });
+    this.$http
+        .get('api/groups')
+        .then(response => {
+          if (response.body.success) {
+            this.groups = response.body.data;
+          } else {
+            this.messages.push(response.body.message);
+          }
+        },
+        response => {
+          this.messages.push(response.body.message);
+        });
 
-      const { data } = await this.$http.get('http://localhost:8000/api/files', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }        
-      });
-      
-      this.files = data.files.data;
-    } catch (e) {
-      this.msg = `Error: the server responded with '${e}'`;
-    }
+      this.$http
+        .get('api/files')
+        .then(response => {
+          this.files = response.body.files.data;
+        },
+        response => {
+          this.messages.push(response.body.message);
+        });
   },
   methods: {
     handleLoginEvent(data) {
@@ -232,14 +237,13 @@ export default {
   box-sizing: border-box;
   position: relative;
   z-index: 201;
+  display: flex;
+  align-items: center;
 }
 
 .nav-bar .profile {
   position: absolute;
   right: 32px;
-  top: 0;
-  bottom: 0;
-  display: flex;
 }
 
 .profile a {
