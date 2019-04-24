@@ -1,16 +1,7 @@
-import auth0 from 'auth0-js';
 import Auth0Lock from 'auth0-lock';
 import EventEmitter from 'events';
 import authConfig from '../../auth_config.json';
-
-const webAuth = new auth0.WebAuth({
-  domain: authConfig.domain,
-  redirectUri: `${window.location.origin}/callback`,
-  clientID: authConfig.clientId,
-  audience: authConfig.audience,
-  responseType: 'token id_token',
-  scope: 'openid profile email'
-});
+import cryptoService from '../crypto/cryptoService.js';
 
 var options = {
   auth: {
@@ -18,27 +9,13 @@ var options = {
     params: {
       scope: "openid profile email"
     },
-    autoParseHash: false,
-    redirectUrl: `${window.location.origin}/callback`,
+    redirectUrl: `${window.location.origin}/home`,
     responseType: "token id_token",
     sso: true
-  },
-  allowedConnections: ['Username-Password-Authentication'],
-  allowAutocomplete: true,
-  allowShowPassword: true,
-  allowForgotPassword: false,
-  autoclose: true,
-  theme: {
-    logo: 'https://i.ibb.co/7rRHQWJ/logo.png',
-    primaryColor: '#e76123'
-  },
-  languageDictionary: {
-    title: "SecretBox"
-  },
-  avatar: null
+  }
 };
 
-const lock = new Auth0Lock(
+var lock = new Auth0Lock(
   authConfig.clientId,
   authConfig.domain,
   options
@@ -54,52 +31,54 @@ class AuthService extends EventEmitter {
 
   accessToken = null;
   accessTokenExpiry = null;
-
-  // Starts the user login flow
-  login(customState) {
-    webAuth.authorize({
-      appState: customState
-    });
-  }
   
   lockLogin(customState) {
-    lock.checkSession({}, (err, authResult) => {
+    lock.checkSession({}, async (err, authResult) => {
       if (err) {
-        if (!customState) {
-          customState = {
-            target: "/home"
-          }
-        }
-        lock.show({
+        var identityKey = await cryptoService.generateIdentityKey();
+
+        options = {
           auth: {
+            audience: authConfig.audience,
             params: {
-              appState: customState
-            }
-          }
-        });
+              scope: "openid profile email"
+            },
+            autoParseHash: true,
+            redirectUrl: `${window.location.origin}/home`,
+            responseType: "token id_token",
+            sso: true
+          },
+          allowedConnections: ['Username-Password-Authentication'],
+          allowAutocomplete: true,
+          allowShowPassword: true,
+          allowForgotPassword: false,
+          autoclose: true,
+          theme: {
+            logo: 'https://i.ibb.co/7rRHQWJ/logo.png',
+            primaryColor: '#e76123'
+          },
+          languageDictionary: {
+            title: "SecretBox"
+          },
+          avatar: null,
+          additionalSignUpFields: [{
+            type: "hidden",
+            name: "identity_key",
+            value: identityKey
+          }]
+        };
+
+        lock = new Auth0Lock(
+          authConfig.clientId,
+          authConfig.domain,
+          options
+        );
+
+        lock.show();
         return;
       }
       authResult.appState = customState;
       this.localLogin(authResult);
-    });
-    
-    lock.on("authenticated", authResult => {
-      this.localLogin(authResult);
-    });
-  }
-
-  // Handles the callback request from Auth0
-  handleAuthentication() {
-    return new Promise((resolve, reject) => {
-      lock.resumeAuth(window.location.hash, (err, authResult) => {
-        if (err) {
-          alert("Could not parse hash");
-          reject(err);
-        } else {
-          this.localLogin(authResult);
-          resolve(authResult.idToken);
-        }
-      });
     });
   }
 

@@ -2,7 +2,6 @@ import Vue from "vue";
 import Router from "vue-router";
 import Welcome from "./views/Welcome.vue";
 import Home from "./views/Home.vue";
-import Callback from "./components/Callback";
 import Profile from "./views/Profile.vue";
 import auth from "./auth/authService";
 import ExternalApiView from "./views/ExternalApi.vue";
@@ -24,11 +23,6 @@ const router = new Router({
       component: Home
     },
     {
-      path: "/callback",
-      name: "callback",
-      component: Callback
-    },
-    {
       path: "/profile",
       name: "profile",
       component: Profile
@@ -42,7 +36,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.path === "/" || to.path === "/callback" || auth.isAuthenticated()) {
+  if (to.path === '/' || auth.isAuthenticated()) {
     return next();
   }
 

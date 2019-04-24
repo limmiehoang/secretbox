@@ -14,13 +14,6 @@ export default {
       isAuthenticated: false
     };
   },
-  async created() {
-    try {
-      await this.$auth.renewTokens();
-    } catch (e) {
-      console.log(e);
-    }
-  },
   methods: {
     handleLoginEvent(data) {
       this.isAuthenticated = data.loggedIn;

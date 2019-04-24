@@ -32,6 +32,13 @@ export default {
   props: {
     isAuthenticated: Boolean
   },
+  async created() {
+    try {
+      await this.$auth.renewTokens();
+    } catch (e) {
+      console.log(e);
+    }
+  },
   methods: {
     login() {
       this.$auth.lockLogin();
