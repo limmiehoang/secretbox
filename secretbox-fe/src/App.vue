@@ -36,7 +36,6 @@ ul {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
@@ -45,11 +44,27 @@ a {
   color: #2c3e50;
 }
 
-a:hover {
+a:hover,
+.btn-link:hover {
   text-decoration: none;
+  color: #e76123;
 }
 
 a.router-link-exact-active {
   color: #42b983;
+}
+
+.btn-primary {
+  background-color: #e76123;
+  border: #e76123;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:visited {
+    background-color: #343a40;
+    border: #343a40;
 }
 </style>
