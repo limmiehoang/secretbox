@@ -10,11 +10,15 @@
       </div>
       <div class="sidebar">
         <div class="sidebar-button">
-          <button class="btn btn-outline-dark btn-sm">New Group</button>
+          <router-link to="/new">
+            <button class="btn btn-outline-dark btn-sm">New Group</button>
+          </router-link>
         </div>
         <div class="sidebar-nav">
           <div class="sidebar-nav-item">
-            <a href="">Dashboard</a>
+            <router-link to="/home">
+              Dashboard
+            </router-link>
           </div>
           <div class="sidebar-nav-item">
             <a href="">My groups</a>
@@ -42,9 +46,14 @@ export default {
       messages: []
     }
   },
-  mounted() {
+  async created() {
+    const accessToken = await this.$auth.getAccessToken();
     this.$http
-      .get('api/groups')
+      .get('api/groups', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
       .then(response => {
         if (response.body.success) {
           this.groups = response.body.data;
