@@ -1,18 +1,33 @@
 import Auth0Lock from 'auth0-lock';
+import auth0 from 'auth0-js';
 import EventEmitter from 'events';
 import authConfig from '../../auth_config.json';
 import cryptoService from '../crypto/cryptoService.js';
 
 var options = {
   auth: {
-    audience: authConfig.audience,
+    audience: authConfig.customAPIAudience,
     params: {
       scope: "openid profile email"
     },
+    autoParseHash: true,
     redirectUrl: `${window.location.origin}/home`,
     responseType: "token id_token",
     sso: true
-  }
+  },
+  allowedConnections: ['Username-Password-Authentication'],
+  allowAutocomplete: true,
+  allowShowPassword: true,
+  allowForgotPassword: false,
+  autoclose: true,
+  theme: {
+    logo: 'https://i.ibb.co/7rRHQWJ/logo.png',
+    primaryColor: '#e76123'
+  },
+  languageDictionary: {
+    title: "SecretBox"
+  },
+  avatar: null
 };
 
 var lock = new Auth0Lock(
@@ -31,55 +46,19 @@ class AuthService extends EventEmitter {
 
   accessToken = null;
   accessTokenExpiry = null;
-  
+
   lockLogin(customState) {
-    lock.checkSession({}, async (err, authResult) => {
-      if (err) {
-        var identityKey = await cryptoService.generateIdentityKey();
-
-        options = {
-          auth: {
-            audience: authConfig.audience,
-            params: {
-              scope: "openid profile email"
-            },
-            autoParseHash: true,
-            redirectUrl: `${window.location.origin}/home`,
-            responseType: "token id_token",
-            sso: true
-          },
-          allowedConnections: ['Username-Password-Authentication'],
-          allowAutocomplete: true,
-          allowShowPassword: true,
-          allowForgotPassword: false,
-          autoclose: true,
-          theme: {
-            logo: 'https://i.ibb.co/7rRHQWJ/logo.png',
-            primaryColor: '#e76123'
-          },
-          languageDictionary: {
-            title: "SecretBox"
-          },
-          avatar: null,
-          additionalSignUpFields: [{
-            type: "hidden",
-            name: "identity_key",
-            value: identityKey
-          }]
-        };
-
-        lock = new Auth0Lock(
-          authConfig.clientId,
-          authConfig.domain,
-          options
-        );
-
-        lock.show();
-        return;
+    this.checkSession().then(
+      authResult => {
+        authResult.appState = customState;
+        this.localLogin(authResult);
       }
-      authResult.appState = customState;
-      this.localLogin(authResult);
-    });
+    ).catch(
+      err => {
+        console.log(err);
+        lock.show();
+      }
+    )
   }
 
   localLogin(authResult) {
@@ -108,15 +87,58 @@ class AuthService extends EventEmitter {
         return reject("Not logged in");
       }
 
-      lock.checkSession({}, (err, authResult) => {
-        if (err) {
-          reject(err);
-        } else {
+      this.checkSession().then(
+        authResult => {
           this.localLogin(authResult);
           resolve(authResult);
         }
-      });
+      ).catch(
+        err => {
+          reject(err);
+        }
+      )
     });
+  }
+
+  checkSession() {
+    return new Promise((resolve, reject) => {
+      lock.checkSession({}, async (err, authResult) => {
+        if (err) {
+          localStorage.removeItem(localStorageKey);
+          localStorage.removeItem("accessToken");
+          return reject(err);
+        }
+        let idTokenPayload = authResult.idTokenPayload;
+        let userMetadataKey = Object.keys(idTokenPayload).find(a => a.includes("user_metadata"));
+        var userMetadata = authResult.idTokenPayload[userMetadataKey];
+        
+        if (!userMetadata || !(userMetadata.identity_key)) {
+          lock.checkSession({
+            audience: authConfig.userManagementAPIAudience,
+            scope: "update:current_user_metadata"
+          }, async (err, result) => {
+            if (!err) {
+              var identityKeyPair = await cryptoService.generateIdentityKey();
+              var auth0Manage = new auth0.Management({
+                domain: authConfig.domain,
+                token: result.accessToken
+              });
+              var userId = result.idTokenPayload.sub;
+              auth0Manage.patchUserMetadata(userId, {
+                identity_key: identityKeyPair.publicKey
+              }, (err, _) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                localStorage.setItem(userId, identityKeyPair.privateKey);
+              });
+            }
+          });
+        }
+        resolve(authResult);
+      });
+    })
   }
 
   logOut() {
