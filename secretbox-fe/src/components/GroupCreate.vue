@@ -24,7 +24,7 @@
             <b-form-group>
               <b-form-checkbox-group v-model="selectedUsers">
                 <b-form-checkbox
-                  v-for="user in users"
+                  v-for="user in otherPeople"
                   :key="user.user_id"
                   :value="user"
                 >{{ user.email }}</b-form-checkbox>
@@ -49,6 +49,7 @@
             >
             <label class="custom-file-label" for="initialFile">Choose file</label>
           </div>
+          <small v-if="initialFile">{{ fileSize }}</small>
         </div>
       </div>
       <div class="row justify-content-center">
@@ -64,9 +65,15 @@
 export default {
   data() {
     return {
-      users: [],
-      selectedUsers: []
+      otherPeople: [],
+      selectedUsers: [],
+      initialFile: null
     };
+  },
+  computed: {
+    fileSize() {
+      return `${this.initialFile.size} bytes`;
+    }
   },
   async created() {
     this.resetComponent();
@@ -89,7 +96,8 @@ export default {
         }
       })
       .then(response => {
-        this.users = response.body;
+        this.otherPeople = response.body;
+        this.otherPeople.shift();
       });
   },
   methods: {
@@ -98,9 +106,15 @@ export default {
     },
     handleFileChange(e) {
       var $this = e.target;
+
       var fileName = $this.value.split("\\").pop();
       $this.nextElementSibling.classList.add("selected");
       $this.nextElementSibling.innerHTML = fileName;
+
+      const stream = $this.files[0];
+      if (stream) {
+        this.initialFile = stream;
+      }
     },
     handleReset() {
       this.selectedUsers = [];
@@ -111,13 +125,38 @@ export default {
       });
     },
     async handleCreate() {
-      // try {
-        var test = await this.$crypto.generateIdentityKey();
-        console.log(test);
-      // }
-      // catch(e) {
-      //   console.log(e);
-      // }
+      console.time("crypto");
+
+      let users = this.selectedUsers.map(a => a.user_id);
+      let encKeys = [];
+      
+      let metadata = {
+        name: this.initialFile.name,
+        size: this.initialFile.size,
+        type: this.initialFile.type || 'application/octet-stream'
+      };
+
+      let identityKey = this.$helpers.getIdentityKey(this.$auth.profile);
+      let secretKey = await this.$crypto.generateSecretKey();
+      let encMetadata = await this.$crypto.encryptMetadata(metadata, secretKey);
+
+      let privateKey = localStorage.getItem(this.$auth.profile.sub);
+      console.log(secretKey);
+
+      for (let user of this.selectedUsers) {
+        let publicKey = user.user_metadata.identity_key;
+        let sharedSecretKey = await this.$crypto.deriveSharedSecretKey(privateKey, publicKey);
+        let encKey = await this.$crypto.encryptKey(secretKey, sharedSecretKey);
+        encKeys.push(encKey);
+      };
+      
+      const reader = new FileReader();
+      reader.onload = async () => {
+        let fileContent = reader.result;
+        let encFileContent = await this.$crypto.encryptFileContent(fileContent, secretKey);
+        console.timeEnd("crypto");
+      };
+      reader.readAsArrayBuffer(this.initialFile);
     }
   }
 };
