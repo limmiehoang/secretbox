@@ -9,6 +9,7 @@ import store from "./store";
 import VueResource from "vue-resource"
 import AuthPlugin from "./plugins/auth";
 import CryptoPlugin from "./plugins/crypto";
+import HelperPlugin from "./plugins/helpers";
 import BootstrapVue from 'bootstrap-vue';
 
 Vue.use(VueResource);
@@ -16,6 +17,7 @@ Vue.use(BootstrapVue);
 
 Vue.use(AuthPlugin);
 Vue.use(CryptoPlugin);
+Vue.use(HelperPlugin);
 
 Vue.config.productionTip = false;
 Vue.http.options.root = 'http://localhost:8000';
