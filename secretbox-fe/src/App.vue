@@ -67,4 +67,54 @@ a.router-link-exact-active {
     background-color: #343a40;
     border: #343a40;
 }
+
+.home {
+  background-color: #fff;
+  display: flex;
+  min-width: 500px;
+}
+
+.sidebar-header,
+#navbar {
+  height: 66px;
+}
+
+.sidebar-button,
+.info-banner {
+  padding: 20px 40px;
+}
+
+.page-content {
+  flex: 3;
+  height: 100vh;
+}
+
+.main-content {
+  width: 100%;
+  display: flex;
+}
+
+.presentation {
+  flex: 2 0 0%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: 40px;
+}
+
+.presentation-breadcrumb {
+  height: 40px;
+  margin-bottom: 20px;
+}
+
+.info-banner {
+  flex: 0 2 25%;
+  max-width: 420px;
+  min-width: 200px;
+}
+
+.info-banner button {
+  width: 100%;
+}
 </style>
