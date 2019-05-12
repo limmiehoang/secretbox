@@ -180,6 +180,12 @@ return [
          */
         \Auth0\Login\LoginServiceProvider::class,
 
+
+        /*
+         * Laravel chunked upload
+         */
+        \Pion\Laravel\ChunkUpload\Providers\ChunkUploadServiceProvider::class
+
     ],
 
     /*
