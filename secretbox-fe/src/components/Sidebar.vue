@@ -10,7 +10,7 @@
       </div>
       <div class="sidebar">
         <div class="sidebar-button">
-          <router-link to="/new">
+          <router-link to="/group/new">
             <button class="btn btn-outline-dark btn-sm">New Group</button>
           </router-link>
         </div>
@@ -25,7 +25,7 @@
             <div class="sidebar-group-list">
               <ul aria-label="Group list">
                 <li class="sidebar-group-list-item" v-for="group in groups" :key="group.id">
-                  <a href="">{{ group.name }}</a>
+                  <router-link :to="`/group/${group.id}`">{{ group.name }}</router-link>
                 </li>
                 <li class="sidebar-group-list-item">
                   <a href="">Group 2</a>

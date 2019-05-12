@@ -2,7 +2,8 @@ import Vue from "vue";
 import Router from "vue-router";
 import Welcome from "./views/Welcome.vue";
 import Home from "./views/Home.vue";
-import NewGroup from "./views/NewGroup.vue";
+import GroupNew from "./views/GroupNew.vue";
+import GroupBrowse from "./views/GroupBrowse.vue";
 import Profile from "./views/Profile.vue";
 import auth from "./auth/authService";
 import ExternalApiView from "./views/ExternalApi.vue";
@@ -24,9 +25,14 @@ const router = new Router({
       component: Home
     },
     {
-      path: "/new",
-      name: "new-group",
-      component: NewGroup
+      path: "/group/new",
+      name: "group-new",
+      component: GroupNew
+    },
+    {
+      path: "/group/:id",
+      name: "group-browse",
+      component: GroupBrowse
     },
     {
       path: "/profile",

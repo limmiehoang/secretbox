@@ -15,7 +15,7 @@ import Navbar from "@/components/Navbar.vue";
 import GroupCreate from "@/components/GroupCreate.vue";
 
 export default {
-  name: "home",
+  name: "group-new",
   components: {
     Sidebar,
     Navbar,
@@ -23,9 +23,7 @@ export default {
   },
   data() {
     return {
-      profile: this.$auth.profile,
-      files: [],
-      messages: []
+      profile: this.$auth.profile
     };
   },
   async created() {
