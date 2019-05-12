@@ -13,6 +13,7 @@
             id="groupName"
             class="form-control"
             placeholder="Enter your group name"
+            v-model="groupName"
           >
         </div>
       </div>
@@ -62,9 +63,12 @@
 </template>
 
 <script>
+import Resumable from "resumablejs";
+
 export default {
   data() {
     return {
+      groupName: "",
       otherPeople: [],
       selectedUsers: [],
       initialFile: null
@@ -96,11 +100,16 @@ export default {
         }
       })
       .then(response => {
-        this.otherPeople = response.body;
-        this.otherPeople.shift();
+        const users = response.body;
+        this.otherPeople = this.getOtherPeople(users, this.$auth.getUserId());
       });
   },
   methods: {
+    getOtherPeople(allUsers, myUserId) {
+      return allUsers.filter(user => {
+        return user.user_id != myUserId
+      });
+    },
     resetComponent() {
       this.selectedUsers = [];
     },
@@ -127,34 +136,87 @@ export default {
     async handleCreate() {
       console.time("crypto");
 
-      let users = this.selectedUsers.map(a => a.user_id);
-      let encKeys = [];
-      
+      let formData = new FormData();
+
       let metadata = {
         name: this.initialFile.name,
         size: this.initialFile.size,
-        type: this.initialFile.type || 'application/octet-stream'
+        type: this.initialFile.type || "application/octet-stream"
       };
 
-      let identityKey = this.$helpers.getIdentityKey(this.$auth.profile);
+      let identityKey = this.$auth.getIdentityPublicKey();
       let secretKey = await this.$crypto.generateSecretKey();
       let encMetadata = await this.$crypto.encryptMetadata(metadata, secretKey);
 
+      formData.append("name", this.groupName);
+      formData.append("encMetadata", encMetadata);
+      formData.append("identityKey", identityKey); // @TODO: this should be obtained by server side
+
       let privateKey = localStorage.getItem(this.$auth.profile.sub);
-      console.log(secretKey);
 
       for (let user of this.selectedUsers) {
         let publicKey = user.user_metadata.identity_key;
-        let sharedSecretKey = await this.$crypto.deriveSharedSecretKey(privateKey, publicKey);
+        let sharedSecretKey = await this.$crypto.deriveSharedSecretKey(
+          privateKey,
+          publicKey
+        );
         let encKey = await this.$crypto.encryptKey(secretKey, sharedSecretKey);
-        encKeys.push(encKey);
-      };
-      
+        formData.append("users[]", user.user_id);
+        formData.append("encKeys[]", encKey);
+      }
+
+      const accessToken = await this.$auth.getAccessToken();
+      const response = await this.$http.post("api/groups", formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      const initialDataId = response.body.data.id;
+
       const reader = new FileReader();
       reader.onload = async () => {
         let fileContent = reader.result;
-        let encFileContent = await this.$crypto.encryptFileContent(fileContent, secretKey);
+        let encFileContent = await this.$crypto.encryptFileContent(
+          fileContent,
+          secretKey
+        );
         console.timeEnd("crypto");
+
+        var resumable = new Resumable({
+          chunkSize: 2 * 1024 * 1024, // 1MB
+          simultaneousUploads: 1,
+          testChunks: false,
+          throttleProgressCallbacks: 1,
+          // Get the url from data-url tag
+          target: "http://localhost:8000/api/upload",
+          // Append token to the request - required for web routes
+          query: { _token: accessToken }
+        });
+
+        var file = new File([new Blob([new Uint8Array(encFileContent)])], `${initialDataId}`, {
+          type: "override/mimetype"
+        });
+
+        // Handle file add event
+        resumable.on("fileAdded", function(file) {
+          // Actually start the upload
+          resumable.upload();
+        });
+        resumable.on("fileSuccess", function(file, message) {
+          console.log("completed uploading " + file.uniqueIdentifier);
+          console.timeEnd("sending");
+          localStorage.setItem(initialDataId, secretKey);
+        });
+        resumable.on("fileError", function(file, message) {
+          console.log("file could not be uploaded");
+        });
+        resumable.on("fileProgress", function(file) {
+          console.log(Math.floor(resumable.progress() * 100) + "%");
+        });
+        console.time("sending");
+        resumable.addFile(file);
       };
       reader.readAsArrayBuffer(this.initialFile);
     }

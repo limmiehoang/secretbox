@@ -16,6 +16,7 @@
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",
     "reset-css": "^4.0.1",
+    "resumablejs": "^1.1.0",
     "vue": "^2.6.6",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",

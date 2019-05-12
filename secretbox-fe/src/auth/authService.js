@@ -182,6 +182,16 @@ class AuthService extends EventEmitter {
       }
     });
   }
+
+  getIdentityPublicKey() {
+    let userMetadataKey = Object.keys(this.profile).find(a => a.includes("user_metadata"));
+    var userMetadata = this.profile[userMetadataKey];
+    return userMetadata ? userMetadata.identity_key : null;
+  }
+
+  getUserId() {
+    return this.profile.sub;
+  }
 }
 
 export default new AuthService();
