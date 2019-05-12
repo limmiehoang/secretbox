@@ -2,9 +2,7 @@
 
 namespace SecretBox;
 
-use Illuminate\Database\Eloquent\Model;
-
-class EncFile extends Model
+class EncFile extends RandomIdModel
 {
     // Using a non-incrementing and non-numeric primary key
     public $incrementing = false;

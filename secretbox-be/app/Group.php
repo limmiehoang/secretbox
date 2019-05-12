@@ -2,8 +2,6 @@
 
 namespace SecretBox;
 
-use Illuminate\Database\Eloquent\Model;
-
 class Group extends RandomIdModel
 {
     // Using a non-incrementing and non-numeric primary key
@@ -12,8 +10,8 @@ class Group extends RandomIdModel
 
 
     protected $fillable = [
-        'name', 'initial_data'
-    ];
+        'name', 'initial_data', 'identity_key'
+    ]; // @TODO: make identity_key not fillable
 
     public function files()
     {
@@ -37,6 +35,6 @@ class Group extends RandomIdModel
 
     public function initialData()
     {
-        return $this->belongsTo('SecretBox\EncFile');
+        return $this->hasOne('SecretBox\EncFile');
     }
 }
