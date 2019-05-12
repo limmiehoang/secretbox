@@ -28,3 +28,5 @@ Route::get('/external', function (Request $request) {
 Route::middleware('jwt')->group( function () {
     Route::resource('groups', 'GroupController');
 });
+
+Route::post('upload', 'UploadController@uploadFile');
