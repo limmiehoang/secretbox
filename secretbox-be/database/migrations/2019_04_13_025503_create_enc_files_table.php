@@ -17,7 +17,7 @@ class CreateEncFilesTable extends Migration
             $table->string('id', 16)->index()->unique();
             $table->primary('id');
             $table->string('group_id', 16)->index();
-            $table->string('prefix');
+            $table->string('prefix')->nullable();
             $table->binary('enc_metadata');
 
             $table->foreign('group_id')->references('id')->on('groups')

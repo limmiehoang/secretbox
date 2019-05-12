@@ -17,6 +17,8 @@ class AddInitialDataToGroups extends Migration
             $table->string('initial_user')->nullable()->index();
             $table->string('initial_data', 16)->nullable()->index();
 
+            $table->string('identity_key')->nullable();
+
             $table->foreign('initial_user')->references('sub')->on('users')
                 ->onDelete('SET NULL');
             $table->foreign('initial_data')->references('id')->on('enc_files')
