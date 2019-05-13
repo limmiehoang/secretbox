@@ -4,8 +4,9 @@
       <div class="presentation-breadcrumb">
         <h5>Create new group</h5>
       </div>
+      <div class="alert alert-danger" v-if="error_msg">{{ error_msg }}</div>
       <div class="form-group row">
-        <label for="groupName" class="col-sm-2 col-form-label">Group name</label>
+        <label for="groupName" class="col-sm-2 col-form-label">Group name*</label>
         <div class="col-sm-10">
           <input
             type="text"
@@ -39,7 +40,7 @@
         </div>
       </div>
       <div class="form-group row">
-        <label for="initialFile" class="col-sm-2 col-form-label">Initial data</label>
+        <label for="initialFile" class="col-sm-2 col-form-label">Initial data*</label>
         <div class="col-sm-10">
           <div class="custom-file">
             <input
@@ -71,7 +72,8 @@ export default {
       groupName: "",
       otherPeople: [],
       selectedUsers: [],
-      initialFile: null
+      initialFile: null,
+      error_msg: ""
     };
   },
   computed: {
@@ -107,7 +109,7 @@ export default {
   methods: {
     getOtherPeople(allUsers, myUserId) {
       return allUsers.filter(user => {
-        return user.user_id != myUserId
+        return user.user_id != myUserId;
       });
     },
     resetComponent() {
@@ -133,8 +135,27 @@ export default {
         this.$refs.addPeopleModal.hide();
       });
     },
+    fileSuccess(resumable) {
+      return new Promise(resolve => {
+        resumable.on("fileSuccess", (file, message) => {
+          resolve(file);
+        });
+      });
+    },
     async handleCreate() {
-      console.time("crypto");
+      this.error_msg = "";
+
+      if (!this.groupName) {
+        this.error_msg = "Please enter group name.";
+        return;
+      }
+
+      if (!this.initialFile) {
+        this.error_msg = "Please add initial data.";
+        return;
+      }
+
+      console.time("encrypt keys and metadata");
 
       let formData = new FormData();
 
@@ -165,26 +186,37 @@ export default {
         formData.append("encKeys[]", encKey);
       }
 
-      const accessToken = await this.$auth.getAccessToken();
-      const response = await this.$http.post("api/groups", formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "multipart/form-data"
-        }
-      });
+      console.timeEnd("encrypt keys and metadata");
 
-      const initialDataId = response.body.data.initial_data.id;
-      
-      const groupId = response.body.data.id;
+      const accessToken = await this.$auth.getAccessToken();
+
+      var initialDataId, groupId;
+
+      try {
+        const response = await this.$http.post("api/groups", formData, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data"
+          }
+        });
+
+        initialDataId = response.body.data.initial_data.id;
+        groupId = response.body.data.id;
+      }
+      catch(e) {
+        this.error_msg = e.body.message;
+        return;
+      }
 
       const reader = new FileReader();
       reader.onload = async () => {
         let fileContent = reader.result;
+        console.time("encrypt file content");
         let encFileContent = await this.$crypto.encryptFileContent(
           fileContent,
           secretKey
         );
-        console.timeEnd("crypto");
+        console.timeEnd("encrypt file content");
 
         var resumable = new Resumable({
           chunkSize: 2 * 1024 * 1024, // 1MB
@@ -197,20 +229,18 @@ export default {
           query: { _token: accessToken }
         });
 
-        var file = new File([new Blob([new Uint8Array(encFileContent)])], `${initialDataId}`, {
-          type: "override/mimetype"
-        });
+        var file = new File(
+          [new Blob([new Uint8Array(encFileContent)])],
+          `${initialDataId}`,
+          {
+            type: "override/mimetype"
+          }
+        );
 
         // Handle file add event
         resumable.on("fileAdded", function(file) {
           // Actually start the upload
           resumable.upload();
-        });
-        resumable.on("fileSuccess", function(file, message) {
-          console.log("completed uploading " + file.uniqueIdentifier);
-          console.timeEnd("sending");
-          
-          localStorage.setItem(groupId, secretKey);
         });
         resumable.on("fileError", function(file, message) {
           console.log("file could not be uploaded");
@@ -218,8 +248,16 @@ export default {
         resumable.on("fileProgress", function(file) {
           console.log(Math.floor(resumable.progress() * 100) + "%");
         });
+        
         console.time("sending");
         resumable.addFile(file);
+
+        const file = await this.fileSuccess(resumable);
+        console.log("completed uploading " + file.uniqueIdentifier);
+        console.timeEnd("sending");
+
+        localStorage.setItem(groupId, secretKey);
+        this.$store.dispatch("loadGroups");
       };
       reader.readAsArrayBuffer(this.initialFile);
     }
