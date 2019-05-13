@@ -42,8 +42,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function groups()
+    public function joinedGroups()
     {
-        return $this->belongsToMany('SecretBox\Group')->withPivot('enc_key');
+        return $this->belongsToMany('SecretBox\Group')->wherePivot('enc_key', null);
+    }
+
+    public function newGroups()
+    {
+        return $this->belongsToMany('SecretBox\Group')->withPivot('enc_key')->wherePivot('enc_key', '!=', null);
     }
 }
