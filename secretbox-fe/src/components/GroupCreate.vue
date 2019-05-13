@@ -173,7 +173,9 @@ export default {
         }
       });
 
-      const initialDataId = response.body.data.id;
+      const initialDataId = response.body.data.initial_data.id;
+      
+      const groupId = response.body.data.id;
 
       const reader = new FileReader();
       reader.onload = async () => {
@@ -207,7 +209,8 @@ export default {
         resumable.on("fileSuccess", function(file, message) {
           console.log("completed uploading " + file.uniqueIdentifier);
           console.timeEnd("sending");
-          localStorage.setItem(initialDataId, secretKey);
+          
+          localStorage.setItem(groupId, secretKey);
         });
         resumable.on("fileError", function(file, message) {
           console.log("file could not be uploaded");
