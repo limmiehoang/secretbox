@@ -23,6 +23,10 @@ class GroupController extends APIController
 
     public function store(Request $request)
     {
+        if (Group::where('name', $request->name)->exists()) {
+            return $this->sendError('Group name exists.', [], 303);
+        }
+
         $groupInput = [
             'name' => $request->name
         ];

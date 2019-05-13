@@ -10,8 +10,8 @@ class Group extends RandomIdModel
 
 
     protected $fillable = [
-        'name', 'initial_data', 'identity_key'
-    ]; // @TODO: make identity_key not fillable
+        'name', 'initial_data'
+    ];
 
     public function files()
     {
