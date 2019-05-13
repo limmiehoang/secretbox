@@ -26,7 +26,7 @@ Vue.use(WSPlugin);
 Vue.config.productionTip = false;
 Vue.http.options.root = 'http://localhost:8000';
 
-new Vue({
+export default new Vue({
   router,
   store,
   render: h => h(App)

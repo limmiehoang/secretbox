@@ -24,11 +24,11 @@
             <a href="">My groups</a>
             <div class="sidebar-group-list">
               <ul aria-label="Group list">
-                <li class="sidebar-group-list-item" v-for="group in groups" :key="group.id">
+                <li class="sidebar-group-list-item" v-for="group in newGroups" :key="group.id">
                   <router-link :to="`/group/${group.id}`">{{ group.name }}</router-link>
                 </li>
-                <li class="sidebar-group-list-item">
-                  <a href="">Group 2</a>
+                <li class="sidebar-group-list-item" v-for="group in joinedGroups" :key="group.id">
+                  <router-link :to="`/group/${group.id}`">{{ group.name }}</router-link>
                 </li>
               </ul>
             </div>
@@ -42,28 +42,19 @@
 export default {
   data() {
     return {
-      groups: [],
-      messages: []
+
+    }
+  },
+  computed: {
+    joinedGroups () {
+      return this.$store.state.joinedGroups
+    },
+    newGroups () {
+      return this.$store.state.newGroups
     }
   },
   async created() {
-    const accessToken = await this.$auth.getAccessToken();
-    this.$http
-      .get('api/groups', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      .then(response => {
-        if (response.body.success) {
-          this.groups = response.body.data;
-        } else {
-          this.messages.push(response.body.message);
-        }
-      },
-      response => {
-        this.messages.push(response.body.message);
-      });
+    await this.$store.dispatch('loadGroups');
   }
 }
 </script>
