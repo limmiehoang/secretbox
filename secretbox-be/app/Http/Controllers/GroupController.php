@@ -12,7 +12,12 @@ class GroupController extends APIController
     public function index()
     {
         $user = User::find(\Auth::user()->sub);
-        $groups = $user->groups->makeHidden('pivot')->sortByDesc('updated_at')->values()->all();
+        $newGroups = $user->newGroups->sortByDesc('updated_at')->values()->all();
+        $joinedGroups = $user->joinedGroups->sortByDesc('updated_at')->values()->all();
+        $groups = [
+          'newGroups' => $newGroups,
+          'joinedGroups' => $joinedGroups
+        ];
         return $this->sendResponse($groups, 'Groups retrieved successfully.');
     }
 
@@ -47,6 +52,8 @@ class GroupController extends APIController
         $group->initial_data = $initialFile->id;
         $group->save();
 
-        return $this->sendResponse($group->initialData, 'Group created successfully.');
+        $group->initialData;
+
+        return $this->sendResponse($group, 'Group created successfully.');
     }
 }
