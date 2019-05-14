@@ -30,3 +30,5 @@ Route::middleware('jwt')->group( function () {
 });
 
 Route::post('upload', 'UploadController@uploadFile');
+
+Route::get('download/{id}', 'UploadController@downloadFile')->middleware('jwt');
