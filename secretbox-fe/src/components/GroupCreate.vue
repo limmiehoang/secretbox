@@ -114,17 +114,17 @@ export default {
     },
     resetComponent() {
       this.selectedUsers = [];
+      this.error_msg = "";
     },
     handleFileChange(e) {
       var $this = e.target;
 
-      var fileName = $this.value.split("\\").pop();
-      $this.nextElementSibling.classList.add("selected");
-      $this.nextElementSibling.innerHTML = fileName;
-
       const stream = $this.files[0];
       if (stream) {
         this.initialFile = stream;
+        var fileName = $this.value.split("\\").pop();
+        $this.nextElementSibling.classList.add("selected");
+        $this.nextElementSibling.innerHTML = fileName;
       }
     },
     handleReset() {
