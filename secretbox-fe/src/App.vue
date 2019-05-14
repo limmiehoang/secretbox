@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div>
-      <router-view :isAuthenticated="isAuthenticated"></router-view>
+      <router-view :isAuthenticated="isAuthenticated" :key="$route.fullPath"></router-view>
     </div>
   </div>
 </template>
@@ -30,6 +30,7 @@ export default {
 <style>
 ul {
   list-style: none;
+  padding-left: 20px;
 }
 
 #app {
