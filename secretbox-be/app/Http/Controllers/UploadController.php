@@ -10,9 +10,11 @@ namespace SecretBox\Http\Controllers;
 
 
 use Illuminate\Http\UploadedFile;
+use League\Flysystem\FileNotFoundException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\AbstractHandler;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UploadController extends APIController
 {
@@ -45,6 +47,41 @@ class UploadController extends APIController
         return response()->json([
             "done" => $handler->getPercentageDone()
         ]);
+    }
+
+    /**
+     * Handles the file download
+     *
+     * @param $id
+     *
+     * @return StreamedResponse
+     * *
+     * @throws FileNotFoundException
+     *
+     */
+    public function downloadFile($id)
+    {
+        //disable execution time limit when downloading a big file.
+        set_time_limit(0);
+
+        $fs = \Storage::disk('local')->getDriver();
+
+        $fileName = "private/" . $id;
+
+        $metaData = $fs->getMetadata($fileName);
+        $stream = $fs->readStream($fileName);
+
+        if (ob_get_level()) ob_end_clean();
+
+        return response()->stream(
+            function () use ($stream) {
+                fpassthru($stream);
+            },
+            200,
+            [
+                'Content-Type' => $metaData['type'],
+                'Content-disposition' => 'attachment; filename="' . $metaData['path'] . '"',
+            ]);
     }
 
     /**
