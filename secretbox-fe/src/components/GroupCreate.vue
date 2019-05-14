@@ -162,7 +162,11 @@ export default {
       let metadata = {
         name: this.initialFile.name,
         size: this.initialFile.size,
-        type: this.initialFile.type || "application/octet-stream"
+        type: this.initialFile.type || "application/octet-stream",
+        owner: {
+          id: this.$auth.getUserId(),
+          name: this.$auth.getName()
+        }
       };
 
       let identityKey = this.$auth.getIdentityPublicKey();
@@ -229,7 +233,7 @@ export default {
           query: { _token: accessToken }
         });
 
-        var file = new File(
+        var initialData = new File(
           [new Blob([new Uint8Array(encFileContent)])],
           `${initialDataId}`,
           {
@@ -250,7 +254,7 @@ export default {
         });
         
         console.time("sending");
-        resumable.addFile(file);
+        resumable.addFile(initialData);
 
         const file = await this.fileSuccess(resumable);
         console.log("completed uploading " + file.uniqueIdentifier);

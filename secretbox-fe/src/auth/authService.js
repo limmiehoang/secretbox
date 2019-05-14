@@ -192,6 +192,10 @@ class AuthService extends EventEmitter {
   getUserId() {
     return this.profile.sub;
   }
+
+  getName() {
+    return this.profile.name;
+  }
 }
 
 export default new AuthService();

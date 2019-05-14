@@ -149,7 +149,7 @@ class CryptoService {
         JSON.stringify(metadata)
       )
     );
-    return ciphertext;
+    return arrayToB64(new Uint8Array(ciphertext));
   }
   async decryptMetadata(ciphertext, secretKeyB64) {
     let metaKey = await this.generateMetaKey(secretKeyB64);
@@ -160,7 +160,7 @@ class CryptoService {
         tagLength: 128
       },
       metaKey,
-      ciphertext
+      b64ToArray(ciphertext)
     );
     return JSON.parse(decoder.decode(plaintext));
   }
