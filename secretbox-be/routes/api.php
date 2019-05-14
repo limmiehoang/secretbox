@@ -29,6 +29,10 @@ Route::middleware('jwt')->group( function () {
     Route::resource('groups', 'GroupController');
 });
 
+Route::middleware('jwt')->group( function () {
+    Route::resource('enc-files', 'EncFileController');
+});
+
 Route::post('upload', 'UploadController@uploadFile');
 
 Route::get('download/{id}', 'UploadController@downloadFile')->middleware('jwt');
