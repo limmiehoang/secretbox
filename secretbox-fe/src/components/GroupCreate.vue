@@ -56,7 +56,10 @@
       </div>
       <div class="row justify-content-center">
         <button class="btn btn-light" @click.prevent="cancel">Cancel</button>
-        <button class="btn btn-primary" @click.prevent="handleCreate">Create</button>
+        <button class="btn btn-primary" @click.prevent="handleCreate" v-show="!isLoading">Create</button>
+        <div class="spinner-border" role="status" v-show="isLoading">
+          <span class="sr-only">Loading...</span>
+        </div>
       </div>
     </div>
     <div class="info-banner"></div>
@@ -73,7 +76,8 @@ export default {
       otherPeople: [],
       selectedUsers: [],
       initialFile: null,
-      error_msg: ""
+      error_msg: "",
+      isLoading: false
     };
   },
   computed: {
@@ -115,6 +119,7 @@ export default {
     resetComponent() {
       this.selectedUsers = [];
       this.error_msg = "";
+      this.isLoading = false;
     },
     handleFileChange(e) {
       var $this = e.target;
@@ -144,6 +149,7 @@ export default {
     },
     async handleCreate() {
       this.error_msg = "";
+      this.isLoading = true;
 
       if (!this.groupName) {
         this.error_msg = "Please enter group name.";
@@ -262,6 +268,7 @@ export default {
 
         localStorage.setItem(groupId, secretKey);
         this.$store.dispatch("loadGroups");
+        this.$router.push(`/group/${groupId}`);
       };
       reader.readAsArrayBuffer(this.initialFile);
     }
