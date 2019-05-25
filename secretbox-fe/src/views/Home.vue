@@ -3,7 +3,7 @@
     <Sidebar/>
     <div class="page-content">
       <Navbar :profile="profile"/>
-      <GroupDetail/>
+      <GroupList/>
     </div>
   </div>
 </template>
@@ -12,20 +12,18 @@
 import Vue from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Navbar from "@/components/Navbar.vue";
-import GroupDetail from "@/components/GroupDetail.vue";
+import GroupList from "@/components/GroupList.vue";
 
 export default {
   name: "home",
   components: {
     Sidebar,
     Navbar,
-    GroupDetail
+    GroupList
   },
   data() {
     return {
-      profile: this.$auth.profile,
-      files: [],
-      messages: []
+      profile: this.$auth.profile
     };
   },
   methods: {
