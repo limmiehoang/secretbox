@@ -3,7 +3,6 @@
 namespace SecretBox\Http\Controllers;
 
 use Illuminate\Http\Request;
-use mysql_xdevapi\Exception;
 use SecretBox\EncFile;
 use SecretBox\User;
 use SecretBox\Group;
@@ -43,7 +42,7 @@ class GroupController extends APIController
                 foreach($request->users as $id=>$userId) {
                     try {
                         $group->users()->attach($userId, ['enc_key' => $request->encKeys[$id]]);
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
 
                     }
                 }
@@ -81,6 +80,8 @@ class GroupController extends APIController
 
         $group->initialData;
         $group->encFiles;
+        $group->key_info = $group->users->where('sub', \Auth::user()->sub)->first()->pivot;
+        $group->users->makeHidden('pivot');
 
         return $this->sendResponse($group, 'Group retrieved successfully.');
     }

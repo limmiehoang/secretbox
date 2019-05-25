@@ -25,7 +25,7 @@ class Group extends RandomIdModel
 
     public function users()
     {
-        return $this->belongsToMany('SecretBox\User');
+        return $this->belongsToMany('SecretBox\User')->withPivot('enc_key');
     }
 
     public function initialUser()
