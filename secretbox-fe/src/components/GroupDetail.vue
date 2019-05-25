@@ -43,7 +43,7 @@
         <div v-if="uploadFile">
           <p>{{ uploadFile.name }}</p>
           <p>{{ size(uploadFile.size) }}</p>
-          <button class="btn btn-outline-dark btn-sm" @click.prevent="handleUpload(file)">Upload</button>
+          <button class="btn btn-outline-dark btn-sm" @click.prevent="handleUpload()">Upload</button>
         </div>
       </div>
       <div class="info-banner" v-if="!uploadFile">
@@ -74,6 +74,28 @@ export default {
     await this.loadFiles();
   },
   methods: {
+    async checkForSecretKey() {
+      if (localStorage.getItem(this.groupInfo.id)) {
+        return;
+      }
+      console.log("no secret key");
+      
+      let privKey = localStorage.getItem(this.$auth.getUserId());
+      console.log("privKey: " + privKey);
+      
+      let pubKey = this.groupInfo.identity_key;
+      console.log("pubKey: " + pubKey);
+      
+      let sharedKey = await this.$crypto.deriveSharedSecretKey(privKey, pubKey);
+      console.log(sharedKey);
+      let ciphertext = this.groupInfo.key_info.enc_key;
+      console.log("ciphertext: " + ciphertext);
+      
+      let secretKey = await this.$crypto.decryptKey(ciphertext, sharedKey);
+      console.log("secretKey: " + secretKey);
+      localStorage.setItem(this.groupInfo.id, secretKey);
+      secretKey = sharedKey = privKey = null;
+    },
     resetComponent() {
       this.files = [];
       this.groupInfo = null;
@@ -94,6 +116,7 @@ export default {
           .then(async response => {
             if (response.body.success) {
               this.groupInfo = response.body.data;
+              await this.checkForSecretKey();
               for (let encFile of this.groupInfo.enc_files) {
                 let metadata = await this.$crypto.decryptMetadata(
                   encFile.enc_metadata,
@@ -135,6 +158,7 @@ export default {
           })
           .then(async response => {
             const ciphertext = response.body;
+            this.checkForSecretKey();
             const plaintext = await this.$crypto.decryptFileContent(
               ciphertext,
               localStorage.getItem(this.groupInfo.id)
@@ -174,6 +198,8 @@ export default {
           name: this.$auth.getName()
         }
       };
+
+      this.checkForSecretKey();
 
       let encMetadata = await this.$crypto.encryptMetadata(
         metadata,
