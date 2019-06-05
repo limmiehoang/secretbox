@@ -132,6 +132,7 @@ class AuthService extends EventEmitter {
                   return;
                 }
                 localStorage.setItem(userId, identityKeyPair.privateKey);
+                this.renewTokens();
               });
             }
           });

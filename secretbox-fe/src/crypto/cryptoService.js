@@ -189,17 +189,21 @@ class CryptoService {
     return arrayToB64(new Uint8Array(plaintext));
   }
   async encryptFileContent(plaintext, secretKeyB64) {
-    let secretKey = await this.generateContentKey(secretKeyB64);
-    const ciphertext = await crypto.subtle.encrypt(
-      {
-        name: 'AES-GCM',
-        iv: new Uint8Array(12),
-        tagLength: 128
-      },
-      secretKey,
-      plaintext
-    );
-    return ciphertext;
+    try {
+      let secretKey = await this.generateContentKey(secretKeyB64);
+      const ciphertext = await crypto.subtle.encrypt(
+        {
+          name: 'AES-GCM',
+          iv: new Uint8Array(12),
+          tagLength: 128
+        },
+        secretKey,
+        plaintext
+      );
+      return ciphertext;
+    } catch(e) {
+      throw e;
+    }
   }
   async decryptFileContent(ciphertext, secretKeyB64) {
     let secretKey = await this.generateContentKey(secretKeyB64);

@@ -21,10 +21,12 @@
             </router-link>
           </div>
           <div class="sidebar-nav-item">
-            <a href="">My groups</a>
+            <div>
+              My groups
+            </div>
             <div class="sidebar-group-list">
               <ul aria-label="Group list">
-                <li class="sidebar-group-list-item" v-for="group in newGroups" :key="group.id">
+                <li class="sidebar-group-list-item new-group" v-for="group in newGroups" :key="group.id">
                   <router-link :to="`/group/${group.id}`">{{ group.name }}</router-link>
                 </li>
                 <li class="sidebar-group-list-item" v-for="group in joinedGroups" :key="group.id">
@@ -122,5 +124,9 @@ export default {
 .sidebar-group-list-item a {
   font-size: 15px;
   line-height: 24px;
+}
+
+.new-group a {
+  font-weight: 700;
 }
 </style>

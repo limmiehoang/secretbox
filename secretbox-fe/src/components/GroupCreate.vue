@@ -21,6 +21,9 @@
       <div class="form-group row">
         <label class="col-sm-2 col-form-label">People</label>
         <div class="col-sm-10">
+          <ul>
+            <li v-for="user in selectedUsers" :key="user.user_id">{{user.email}}</li>
+          </ul>
           <button class="btn btn-light" v-b-modal.addPeopleModal>Add more people</button>
           <b-modal id="addPeopleModal" title="Add more people" ref="addPeopleModal" hide-footer>
             <b-form-group>
@@ -55,7 +58,9 @@
         </div>
       </div>
       <div class="row justify-content-center">
-        <button class="btn btn-light" @click.prevent="cancel">Cancel</button>
+        <router-link to="/home">
+          <button class="btn btn-light">Cancel</button>
+        </router-link>
         <button class="btn btn-primary" @click.prevent="handleCreate" v-show="!isLoading">Create</button>
         <div class="spinner-border" role="status" v-show="isLoading">
           <span class="sr-only">Loading...</span>
@@ -82,7 +87,8 @@ export default {
   },
   computed: {
     fileSize() {
-      return `${this.initialFile.size} bytes`;
+      // return `${this.initialFile.size} bytes`;
+      return this.$helpers.bytesToSize(this.initialFile.size);
     }
   },
   async created() {
@@ -215,6 +221,7 @@ export default {
       }
       catch(e) {
         this.error_msg = e.body.message;
+        this.isLoading = false;
         return;
       }
 
@@ -234,7 +241,7 @@ export default {
           testChunks: false,
           throttleProgressCallbacks: 1,
           // Get the url from data-url tag
-          target: "http://localhost:8000/api/upload",
+          target: "https://be-secretbox.io/api/upload",
           // Append token to the request - required for web routes
           query: { _token: accessToken }
         });
@@ -253,7 +260,8 @@ export default {
           resumable.upload();
         });
         resumable.on("fileError", function(file, message) {
-          console.log("file could not be uploaded");
+          this.error_msg = "File could not be uploaded.";
+          this.isLoading = false;
         });
         resumable.on("fileProgress", function(file) {
           console.log(Math.floor(resumable.progress() * 100) + "%");

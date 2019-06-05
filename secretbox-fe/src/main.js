@@ -24,7 +24,7 @@ Vue.use(HelperPlugin);
 Vue.use(WSPlugin);
 
 Vue.config.productionTip = false;
-Vue.http.options.root = 'http://localhost:8000';
+Vue.http.options.root = 'https://be-secretbox.io';
 
 export default new Vue({
   router,

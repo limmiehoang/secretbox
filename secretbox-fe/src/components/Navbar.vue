@@ -6,6 +6,7 @@
           <a href="">{{ profile.name }}</a>
           <img :src="profile.picture" alt="Avatar" class="avatar" onError="this.onerror=null;this.src='https://i.pinimg.com/236x/40/41/fa/4041faa0a8989e5787f9b164ca3b2650--occupational-therapist-physical-therapist.jpg';">
         </template>
+        <b-dropdown-item to="/profile">Profile</b-dropdown-item>
         <b-dropdown-item @click.prevent="logout">Logout</b-dropdown-item>
       </b-dropdown>
     </div>

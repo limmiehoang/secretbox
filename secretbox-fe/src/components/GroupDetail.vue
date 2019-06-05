@@ -30,14 +30,6 @@
                 </div>
               </td>
             </tr>
-            <tr>
-              <td>Auth0.png</td>
-              <td>me</td>
-              <td>1GB</td>
-              <td>
-                <button class="btn btn-outline-dark btn-sm">Download</button>
-              </td>
-            </tr>
           </tbody>
         </table>
         <div v-if="uploadFile">
@@ -138,7 +130,8 @@ export default {
       return owner.name;
     },
     size(size) {
-      return `${size} bytes`;
+      // return `${size} bytes`;
+      return this.$helpers.bytesToSize(size);
     },
     isLoading(fileId) {
       return fileId == this.loadingFile;
@@ -165,6 +158,8 @@ export default {
             );
             this.loadingFile = "";
             download(plaintext, file.name, file.type);
+          }, err => {
+            this.loadingFile = "";
           });
       } catch (e) {
         this.loadingFile = "";
@@ -243,7 +238,7 @@ export default {
           testChunks: false,
           throttleProgressCallbacks: 1,
           // Get the url from data-url tag
-          target: "http://localhost:8000/api/upload",
+          target: "https://be-secretbox.io/api/upload",
           // Append token to the request - required for web routes
           query: { _token: accessToken }
         });

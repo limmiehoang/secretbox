@@ -1,23 +1,25 @@
 <template>
-  <div v-if="profile">
-    <div>
-      <div>
-        <img :src="profile.picture">
-      </div>
-    </div>
-    <div>
-      <h2>{{ profile.name }}</h2>
-      <p>{{ profile.email }}</p>
-    </div>
-    <div>
-      <pre>{{ JSON.stringify(profile, null, 2) }}</pre>
+  <div class="home">
+    <Sidebar/>
+    <div class="page-content">
+      <Navbar :profile="profile"/>
+      <Profile :profile="profile"/>
     </div>
   </div>
 </template>
 
 
 <script>
+import Sidebar from "@/components/Sidebar.vue";
+import Navbar from "@/components/Navbar.vue";
+import Profile from "@/components/Profile.vue";
+
 export default {
+  components: {
+    Sidebar,
+    Navbar,
+    Profile
+  },
   data() {
     return {
       profile: this.$auth.profile

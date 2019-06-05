@@ -86,6 +86,7 @@ a.router-link-exact-active {
 }
 
 .page-content {
+  width: 80%;
   flex: 3;
   height: 100vh;
 }
