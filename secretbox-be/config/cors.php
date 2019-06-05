@@ -13,7 +13,8 @@ return [
     */
    
     'supportsCredentials' => false,
-    'allowedOrigins' => ['http://localhost:8080'],
+//    'allowedOrigins' => ['http://localhost:8080','https://localhost:8080','http://secretbox.io','https://secretbox.io'],
+    'allowedOrigins' => ['*'],
     'allowedOriginsPatterns' => [],
     'allowedHeaders' => ['*'],
     'allowedMethods' => ['*'],

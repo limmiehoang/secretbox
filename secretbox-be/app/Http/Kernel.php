@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
         \SecretBox\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \SecretBox\Http\Middleware\TrustProxies::class,
-        \Barryvdh\Cors\HandleCors::class,
+//        \Barryvdh\Cors\HandleCors::class,
     ];
 
     /**
