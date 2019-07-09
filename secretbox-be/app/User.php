@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace SecretBox;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -10,13 +10,18 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    // Using a non-incrementing and non-numeric primary key
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'sub';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'sub',
     ];
 
     /**
@@ -36,4 +41,14 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function joinedGroups()
+    {
+        return $this->belongsToMany('SecretBox\Group')->wherePivot('enc_key', null);
+    }
+
+    public function newGroups()
+    {
+        return $this->belongsToMany('SecretBox\Group')->withPivot('enc_key')->wherePivot('enc_key', '!=', null);
+    }
 }

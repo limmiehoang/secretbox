@@ -1,18 +1,41 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <Sidebar/>
+    <div class="page-content">
+      <Navbar :profile="profile"/>
+      <GroupList/>
+    </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import Vue from "vue";
+import Sidebar from "@/components/Sidebar.vue";
+import Navbar from "@/components/Navbar.vue";
+import GroupList from "@/components/GroupList.vue";
 
 export default {
   name: "home",
   components: {
-    HelloWorld
+    Sidebar,
+    Navbar,
+    GroupList
+  },
+  data() {
+    return {
+      profile: this.$auth.profile
+    };
+  },
+  methods: {
+    handleLoginEvent(data) {
+      this.profile = data.profile;
+    },
+    logout() {
+      this.$auth.logOut();
+    }
   }
 };
 </script>
+
+<style>
+</style>

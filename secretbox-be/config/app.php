@@ -169,11 +169,22 @@ return [
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        SecretBox\Providers\AppServiceProvider::class,
+        SecretBox\Providers\AuthServiceProvider::class,
+        // SecretBox\Providers\BroadcastServiceProvider::class,
+        SecretBox\Providers\EventServiceProvider::class,
+        SecretBox\Providers\RouteServiceProvider::class,
+
+        /*
+         * Auth0 Service Providers...
+         */
+        \Auth0\Login\LoginServiceProvider::class,
+
+
+        /*
+         * Laravel chunked upload
+         */
+        \Pion\Laravel\ChunkUpload\Providers\ChunkUploadServiceProvider::class
 
     ],
 
@@ -225,6 +236,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Auth0' => \Auth0\Login\Facade\Auth0::class,
 
     ],
 

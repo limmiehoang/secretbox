@@ -1,0 +1,6 @@
+{
+    "domain": "limmie.auth0.com",
+    "clientId": "sOsVaCZKb5mc2LA8BADK0099NO78OgLn",
+    "customAPIAudience": "https://api.secretbox.com",
+    "userManagementAPIAudience": "https://limmie.auth0.com/api/v2/"
+}
