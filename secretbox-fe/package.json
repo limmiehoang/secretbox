@@ -14,7 +14,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.14",
     "downloadjs": "^1.4.7",
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.0",
     "popper.js": "^1.14.7",
     "reset-css": "^4.0.1",
     "resumablejs": "^1.1.0",
